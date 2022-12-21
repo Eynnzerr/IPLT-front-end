@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:learnflutter/config/log_utils.dart';
 import 'package:learnflutter/data/bean/position.dart';
+import 'package:learnflutter/data/sp_keys.dart';
 import 'package:learnflutter/utils/network/logging_interceptor.dart';
 import 'package:learnflutter/utils/network/token_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -60,7 +61,7 @@ class DioClient {
     if (code == 200) {
       String token = result['data'];
       final sp = await SharedPreferences.getInstance();
-      sp.setString('token', token);
+      sp.setString(PreferenceKeys.token, token);
       return true;
     } else {
       LoggerUtils.d(_tag, 'Login response is received but is wrong.');

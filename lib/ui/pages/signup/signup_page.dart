@@ -43,7 +43,7 @@ class SignupForm extends StatelessWidget {
   final SignupModel model = Get.put(SignupModel());
 
   void _enterHomePage() async {
-    bool isLoggedIn = await model.loginByPassword(model.username.value, model.password.value);
+    bool isLoggedIn = await model.loginByPassword(model.username, model.password);
     if (isLoggedIn) {
       // Fluttertoast.showToast(
       //   msg: '登录成功',
@@ -69,7 +69,7 @@ class SignupForm extends StatelessWidget {
       child: Container(
         // padding: const EdgeInsets.only(left: 16, top: 0, right: 16, bottom: 16),
         decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).canvasColor,
             borderRadius: BorderRadius.circular(8),
             boxShadow: const [
               BoxShadow(
@@ -81,7 +81,7 @@ class SignupForm extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AnimatedProgressIndicator(value: model.formProgress.value,),
+            AnimatedProgressIndicator(value: model.formProgress,),
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
@@ -131,7 +131,7 @@ class SignupForm extends StatelessWidget {
                                 : Colors.blue;
                           }),
                     ),
-                    onPressed: model.formProgress.value == 1 ? _enterHomePage : null,
+                    onPressed: model.formProgress == 1 ? _enterHomePage : null,
                     child: const Text('Sign in'),
                   ),
                   TextButton(

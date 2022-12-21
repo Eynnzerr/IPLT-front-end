@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:learnflutter/data/model/common_model.dart';
+import 'package:learnflutter/routes.dart';
 import 'package:learnflutter/ui/common/scaffold_drawer.dart';
 
 class PageScaffold extends StatelessWidget {
@@ -14,8 +15,8 @@ class PageScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Inject singleton model.
-    final model = Get.isRegistered<CommonModel>() ? Get.find<CommonModel>() : Get.put(CommonModel());
+    // Already inject CommonModel at start.
+    final model = Get.find<GlobalModel>();
 
     if (screenWidth >= breakPoint) {
       return DesktopPage(model: model, child: desktopChild,);
@@ -29,30 +30,40 @@ class PageScaffold extends StatelessWidget {
 class DesktopPage extends StatelessWidget {
   const DesktopPage({Key? key, this.child, required this.model}) : super(key: key);
 
-  final CommonModel model;
+  final GlobalModel model;
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
     return Obx(() => Scaffold(
       appBar: AppBar(
-        title: Text(model.title.value),
+        title: Text(model.title),
         leading: IconButton(
             onPressed: () => model.updateExtended(),
             icon: const Icon(Icons.menu)
         ),
-        actions: const [
+        actions: [
           IconButton(
-              onPressed: null,
-              icon: Icon(Icons.refresh)
+              onPressed: () {
+                Get.snackbar('刷新', '数据已重新刷新。');
+              },
+              icon: const Icon(Icons.refresh)
           ),
-          IconButton(
-              onPressed: null,
-              icon: Icon(Icons.light_mode)
+          PopupMenuButton(
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: 0,child: Text("白天模式")),
+              const PopupMenuItem(value: 1,child: Text("夜间模式")),
+              const PopupMenuItem(value: 2,child: Text("跟随系统")),
+            ],
+            icon: const Icon(Icons.dark_mode),
+            onSelected: (int mode) => model.darkMode = mode,
           ),
-          IconButton(
-              onPressed: null,
-              icon: Icon(Icons.person)
+          PopupMenuButton(
+            itemBuilder: (_) => [const PopupMenuItem(value: 'logout',child: Text("下线"))],
+            icon: const Icon(Icons.person),
+            onSelected: (_) {
+              Get.offAllNamed(Routes.signup);
+            },
           )
         ],
       ),
@@ -91,9 +102,9 @@ class DesktopPage extends StatelessWidget {
                 ),
               ),
             ),
-            extended: model.railExtended.value,
-            selectedIndex: model.navigationIndex.value,
-            onDestinationSelected: (int index) => model.navigationIndex.value = index,
+            extended: model.railExtended,
+            selectedIndex: model.navigationIndex,
+            onDestinationSelected: (int index) => model.navigationIndex = index,
             elevation: 3,
           ),
           Expanded(
@@ -108,7 +119,7 @@ class DesktopPage extends StatelessWidget {
 class MobilePage extends StatelessWidget {
   const MobilePage({Key? key, this.child, required this.model}) : super(key: key);
 
-  final CommonModel model;
+  final GlobalModel model;
   final Widget? child;
 
   @override
@@ -116,40 +127,65 @@ class MobilePage extends StatelessWidget {
     return Obx(() => Scaffold(
       appBar: AppBar(
         title: const Text('IPLT 室内行人轨迹定位系统 v1.0.0'),
-        actions: const [
+        actions: [
           IconButton(
-              onPressed: null,
-              icon: Icon(Icons.refresh)
+              onPressed: () {
+                Get.snackbar('刷新', '数据已重新刷新。');
+              },
+              icon: const Icon(Icons.refresh)
           ),
-          IconButton(
-              onPressed: null,
-              icon: Icon(Icons.light_mode)
+          PopupMenuButton(
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: 0,child: Text("白天模式")),
+              const PopupMenuItem(value: 1,child: Text("夜间模式")),
+              const PopupMenuItem(value: 2,child: Text("跟随系统")),
+            ],
+            icon: const Icon(Icons.dark_mode),
+            onSelected: (int mode) => model.darkMode = mode,
           ),
-          IconButton(
-              onPressed: null,
-              icon: Icon(Icons.person)
+          PopupMenuButton(
+            itemBuilder: (_) => [const PopupMenuItem(value: 'logout',child: Text("下线"))],
+            icon: const Icon(Icons.person),
+            onSelected: (_) {
+              Get.offAllNamed(Routes.signup);
+            },
           )
         ],
       ),
       drawer: const MainDrawer(),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: '系统主页'
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.my_location),
-            label: '室内定位',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '系统设置',
-          ),
-        ],
-        currentIndex: model.navigationIndex.value,
-        onTap: (int index) => model.navigationIndex.value = index,
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              onPressed: () => model.navigationIndex = 0,
+              icon: Icon(
+                Icons.home,
+                color: model.navigationIndex == 0 ? Theme.of(context).primaryColor : Theme.of(context).highlightColor,
+              ),
+            ),
+            const SizedBox(),
+            IconButton(
+              onPressed: () => model.navigationIndex = 4,
+              icon: Icon(
+                Icons.settings,
+                color: model.navigationIndex == 4 ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+              ),
+            ),
+          ],
+        ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Get.defaultDialog(
+            middleText: 'you opened FAB.',
+            onConfirm: () { }
+          );
+        },
+        child: Icon(Icons.unfold_more),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: child,
     ));
   }
