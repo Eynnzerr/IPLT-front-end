@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:learnflutter/data/model/common_model.dart';
 import 'package:learnflutter/routes.dart';
+import 'package:learnflutter/ui/common/data_container.dart';
 import 'package:learnflutter/ui/common/scaffold_drawer.dart';
 
 class PageScaffold extends StatelessWidget {
   const PageScaffold({Key? key, this.desktopChild, this.mobileChild, this.breakPoint=600}) : super(key: key);
   
   final double breakPoint;
+  // Since this widget is already wrapped with Obx(), child must not repeat doing so.
   final Widget? desktopChild;
   final Widget? mobileChild;
 
@@ -44,9 +46,26 @@ class DesktopPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-              onPressed: () {
-                Get.snackbar('刷新', '数据已重新刷新。');
-              },
+            onPressed: () {},
+            icon: const Icon(Icons.help_outline)
+          ),
+          Builder(
+            builder: (context) => IconButton(
+              onPressed: () => Scaffold.of(context).openEndDrawer(), 
+              icon: const Icon(Icons.dataset_outlined)
+            )
+          ),
+          IconButton(
+            onPressed: () {
+              model.refreshData();
+              Get.snackbar(
+                '刷新',
+                '数据已重新刷新。',
+                icon: const Icon(Icons.check_circle_outline_outlined),
+                shouldIconPulse: true,
+                backgroundColor: Colors.white60.withOpacity(0.2)
+              );
+            },
               icon: const Icon(Icons.refresh)
           ),
           PopupMenuButton(
@@ -66,6 +85,114 @@ class DesktopPage extends StatelessWidget {
             },
           )
         ],
+      ),
+      endDrawer: Drawer( // TODO
+        elevation: 16.0,
+        width: 600,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            DataContainer(
+              child: Obx(() => ListView.separated(
+                  itemBuilder: (_, index) {
+                    final position = model.posList[index];
+                    return ExpansionTile(
+                      title: Text('position $index'),
+                      subtitle: Text('x: ${position.x} y: ${position.y} z: ${position.z}'),
+                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // TODO modify with TextSpan
+                        Text('address: ${position.address}'),
+                        Text('x: ${position.x} y: ${position.y} z: ${position.z}'),
+                        Text('stay: ${position.stay}'),
+                        Text('timestamp: ${position.timestamp}'),
+                        Text('bsAddress: ${position.bsAddress}'),
+                        Text('sample time: ${position.sampleTime}'),
+                        Text('sample batch: ${position.sampleBatch}'),
+                        ButtonBar(
+                          children: [
+                            ElevatedButton.icon(
+                                onPressed: () {
+                                  // TODO 弹出一个对话框，对当前所选数据修改 同时修改远端数据库中数据
+                                },
+                                icon: const Icon(Icons.edit),
+                                label: const Text('编辑')
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                // TODO 删除当前所选数据 同时从远端数据库中删除该数据
+                              },
+                              icon: const Icon(Icons.delete_forever),
+                              label: const Text('删除'),
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Theme.of(context).errorColor
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    );
+                  },
+                  separatorBuilder: (context, index) => Divider(
+                    color: Theme.of(context).primaryColor,
+                    thickness: 1,
+                  ),
+                  itemCount: model.posList.length
+              )),
+            ),
+            DataContainer(
+              child: Obx(() => ListView.separated(
+                  itemBuilder: (_, index) {
+                    final running = model.runList[index];
+                    return ExpansionTile(
+                      title: Text('running $index'),
+                      subtitle: Text('accx: ${running.accx} accy: ${running.accy} accz: ${running.accz}'),
+                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('address: ${running.address}'),
+                        Text('accx: ${running.accx} y: ${running.accy} z: ${running.accz}'),
+                        Text('gyroscopex: ${running.gyroscopex}'),
+                        Text('gyroscopey: ${running.gyroscopey}'),
+                        Text('gyroscopez: ${running.gyroscopez}'),
+                        Text('stay: ${running.stay}'),
+                        Text('timestamp: ${running.timestamp}'),
+                        Text('bsAddress: ${running.bsAddress}'),
+                        Text('sample time: ${running.sampleTime}'),
+                        Text('sample batch: ${running.sampleBatch}'),
+                        ButtonBar(
+                          children: [
+                            ElevatedButton.icon(
+                                onPressed: () {
+                                  // TODO 弹出一个对话框，对当前所选数据修改 同时修改远端数据库中数据
+                                },
+                                icon: const Icon(Icons.edit),
+                                label: const Text('编辑')
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                // TODO 删除当前所选数据 同时从远端数据库中删除该数据
+                              },
+                              icon: const Icon(Icons.delete_forever),
+                              label: const Text('删除'),
+                              style: TextButton.styleFrom(
+                                  backgroundColor: Theme.of(context).errorColor
+                              ),
+                            )
+                          ],
+                        )
+                      ],
+                    );
+                  },
+                  separatorBuilder: (context, index) => Divider(
+                    color: Theme.of(context).primaryColor,
+                    thickness: 1,
+                  ),
+                  itemCount: model.runList.length
+              )),
+            )
+          ],
+        ),
       ),
       body: Row(
         mainAxisSize: MainAxisSize.max,
@@ -129,10 +256,21 @@ class MobilePage extends StatelessWidget {
         title: const Text('IPLT 室内行人轨迹定位系统 v1.0.0'),
         actions: [
           IconButton(
-              onPressed: () {
-                Get.snackbar('刷新', '数据已重新刷新。');
-              },
-              icon: const Icon(Icons.refresh)
+            onPressed: () {},
+            icon: const Icon(Icons.help_outline)
+          ),
+          IconButton(
+            onPressed: () {
+              model.refreshData();
+              Get.snackbar(
+                '刷新',
+                '数据已重新刷新。',
+                icon: const Icon(Icons.check_circle_outline_outlined),
+                shouldIconPulse: true,
+                backgroundColor: Colors.white60.withOpacity(0.2)
+              );
+            },
+            icon: const Icon(Icons.refresh)
           ),
           PopupMenuButton(
             itemBuilder: (_) => [

@@ -16,7 +16,7 @@ class Running {
   int timestamp;
   int bsAddress;
   String sampleTime;
-  String sampleBatch;
+  int sampleBatch;
 
   factory Running.fromJson(Map<String, dynamic> json) => _$RunningFromJson(json);
 

@@ -19,7 +19,7 @@ Running _$RunningFromJson(Map<String, dynamic> json) => Running(
       json['timestamp'] as int,
       json['bsAddress'] as int,
       json['sampleTime'] as String,
-      json['sampleBatch'] as String,
+      json['sampleBatch'] as int,
     );
 
 Map<String, dynamic> _$RunningToJson(Running instance) => <String, dynamic>{

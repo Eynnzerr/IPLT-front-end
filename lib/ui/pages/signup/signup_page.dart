@@ -50,7 +50,13 @@ class SignupForm extends StatelessWidget {
       //   toastLength: Toast.LENGTH_SHORT,
       //   gravity: ToastGravity.BOTTOM
       // );
-      Get.snackbar('Login successfully', 'Welcome to IPLT system!');
+      Get.snackbar(
+        'Login successfully',
+        'Welcome to IPLT system!',
+        icon: const Icon(Icons.check_circle_outline_outlined),
+        shouldIconPulse: true,
+        backgroundColor: Colors.white60.withOpacity(0.2)
+      );
       Get.offNamed(Routes.home);
     } else {
       // Fluttertoast.showToast(
@@ -58,7 +64,13 @@ class SignupForm extends StatelessWidget {
       //     toastLength: Toast.LENGTH_SHORT,
       //     gravity: ToastGravity.BOTTOM
       // );
-      Get.snackbar('Login failed', 'Please check password and network connection.');
+      Get.snackbar(
+        'Login failed',
+        'Please check password and network connection.',
+        icon: const Icon(Icons.error_outline_outlined),
+        shouldIconPulse: true,
+        backgroundColor: Colors.white60.withOpacity(0.2)
+      );
     }
   }
 
@@ -139,7 +151,7 @@ class SignupForm extends StatelessWidget {
                       foregroundColor: MaterialStateColor.resolveWith((states) => Colors.white),
                       backgroundColor: MaterialStateColor.resolveWith((states) => Colors.blue),
                     ),
-                    onPressed: null,
+                    onPressed: () => Get.offNamed(Routes.home),
                     child: const Text('Register'),
                   ),
                 ],

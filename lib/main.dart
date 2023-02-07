@@ -44,11 +44,34 @@ class IPLTApp extends StatelessWidget {
         getPages: [
           GetPage(name: Routes.signup, page: () => const SignupPage()),
           GetPage(name: Routes.home, page: () => const HomePage()),
-          GetPage(name: Routes.data, page: () => const DataPage()),
-          GetPage(name: Routes.map, page: () => const MapPage()),
+          GetPage(name: Routes.data, page: () => DataPage()),
+          GetPage(name: Routes.map, page: () => MapPage()),
           GetPage(name: Routes.history, page: () => const HistoryPage()),
           GetPage(name: Routes.settings, page: () => const SettingsPage())
         ],
+        routingCallback: (routing) {
+          // Handle the right index when routing back.
+          // Use preventDuplicates to avoid duplicate routing.
+          switch (routing!.current) {
+            case Routes.home:
+              model.navigationIndex = 0;
+              break;
+            case Routes.data:
+              model.navigationIndex = 1;
+              break;
+            case Routes.map:
+              model.navigationIndex = 2;
+              break;
+            case Routes.history:
+              model.navigationIndex = 3;
+              break;
+            case Routes.settings:
+              model.navigationIndex = 4;
+              break;
+            default:
+              break;
+          }
+        },
         themeMode: mode,
         theme: ThemeData.light(),
         darkTheme: ThemeData.dark(),

@@ -1,16 +1,19 @@
 import 'package:get/get.dart';
-import 'package:learnflutter/config/log_utils.dart';
+import 'package:learnflutter/data/bean/position.dart';
+import 'package:learnflutter/data/bean/running.dart';
 import 'package:learnflutter/data/sp_keys.dart';
 import 'package:learnflutter/routes.dart';
+import 'package:learnflutter/utils/network/dio_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Stores global data.
 class GlobalModel extends GetxController {
 
-  // final username = ''.obs;
   final _navigationIndex = 0.obs;
   final _railExtended = false.obs; // whether navigation rail is extended. Only valid for desktop/web.
   final _darkMode = 2.obs;
+  final posList = <Position>[].obs;
+  final runList = <Running>[].obs;
   var title = 'IPLT 室内行人轨迹定位系统 v1.0.0';
   late final Worker _navigationWorker;
   late final SharedPreferences _sp;
@@ -25,7 +28,26 @@ class GlobalModel extends GetxController {
     _sp.setInt(PreferenceKeys.darkMode, mode);
     _darkMode.value = mode;
   }
+
   void updateExtended() => _railExtended.value = !_railExtended.value;
+
+  void loadPositions(int batch) async {
+    HttpResponse<List<Position>> res = await DioClient.instance.getPosByBatch(batch);
+    posList.value = res.success ? res.data??[] : [];
+  }
+
+  void loadRunning(int batch) async {
+    HttpResponse<List<Running>> res = await DioClient.instance.getRunByBatch(batch);
+    runList.value = res.success ? res.data??[] : [];
+  }
+
+  void refreshData() async {
+    int batch = 27;
+    if (posList.isNotEmpty) batch = posList[0].sampleBatch;
+
+    loadPositions(batch);
+    loadRunning(batch);
+  }
 
   // Automatically navigation.
   @override
