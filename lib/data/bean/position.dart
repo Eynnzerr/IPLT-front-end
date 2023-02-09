@@ -1,9 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:learnflutter/data/bean/cloneable.dart';
 
 part 'position.g.dart';
 
 @JsonSerializable()
-class Position {
+class Position implements Cloneable{
   int id;
   String address;
   double x;
@@ -31,6 +32,11 @@ class Position {
     this.sampleTime,
     this.sampleBatch
   );
+
+  @override
+  clone() {
+    return Position(id, address, x, y, z, stay, timestamp, bsAddress, sampleTime, sampleBatch);
+  }
 
   @override
   String toString() {

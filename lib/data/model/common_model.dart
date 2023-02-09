@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:learnflutter/data/bean/position.dart';
 import 'package:learnflutter/data/bean/running.dart';
@@ -12,6 +14,7 @@ class GlobalModel extends GetxController {
   final _navigationIndex = 0.obs;
   final _railExtended = false.obs; // whether navigation rail is extended. Only valid for desktop/web.
   final _darkMode = 2.obs;
+  final _dataEditing = false.obs;
   final posList = <Position>[].obs;
   final runList = <Running>[].obs;
   var title = 'IPLT 室内行人轨迹定位系统 v1.0.0';
@@ -21,6 +24,7 @@ class GlobalModel extends GetxController {
   int get navigationIndex => _navigationIndex.value;
   bool get railExtended => _railExtended.value;
   int get darkMode => _darkMode.value;
+  bool get dataEditing => _dataEditing.value;
   SharedPreferences get sp => _sp;
   set navigationIndex(int newValue) => _navigationIndex.value = newValue;
   set darkMode(int mode) {
@@ -30,6 +34,8 @@ class GlobalModel extends GetxController {
   }
 
   void updateExtended() => _railExtended.value = !_railExtended.value;
+
+  void updateEditing() => _dataEditing.value = !_dataEditing.value;
 
   void loadPositions(int batch) async {
     HttpResponse<List<Position>> res = await DioClient.instance.getPosByBatch(batch);
@@ -47,6 +53,74 @@ class GlobalModel extends GetxController {
 
     loadPositions(batch);
     loadRunning(batch);
+  }
+
+  void deleteData(int id, {bool isPos = true}) async {
+    // Delete chosen pos/run data in both memory and backend.
+    // No need to refresh data by hand.
+    bool success = await DioClient.instance.deleteData(id, isPos: isPos);
+    if (success) {
+      if (isPos) {
+        posList.removeWhere((element) => element.id == id);
+      } else {
+        runList.removeWhere((element) => element.id == id);
+      }
+      Fluttertoast.showToast(
+        msg: '数据删除成功',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green
+      );
+    } else {
+      Fluttertoast.showToast(
+        msg: '数据删除失败',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red
+      );
+    }
+  }
+
+  void updatePos(Position position) async {
+    // update chosen pos/run data in both memory and backend.
+    // No need to refresh data by hand.
+    bool success = await DioClient.instance.updatePos(position);
+    if (success) {
+      Fluttertoast.showToast(
+          msg: 'Position 数据更新成功',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green
+      );
+    } else {
+      Fluttertoast.showToast(
+          msg: 'Position 数据更新失败',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red
+      );
+    }
+  }
+
+  void updateRun(Running running) async {
+    // update chosen pos/run data in both memory and backend.
+    // No need to refresh data by hand.
+    bool success = await DioClient.instance.updateRun(running);
+    if (success) {
+      Fluttertoast.showToast(
+          msg: 'Running 数据更新成功',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.green
+      );
+    } else {
+      Fluttertoast.showToast(
+          msg: 'Running 数据更新失败',
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.red
+      );
+    }
   }
 
   // Automatically navigation.

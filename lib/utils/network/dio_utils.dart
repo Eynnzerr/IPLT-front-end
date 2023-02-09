@@ -8,16 +8,22 @@ import 'package:learnflutter/utils/network/logging_interceptor.dart';
 import 'package:learnflutter/utils/network/token_interceptor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+typedef Json = Map<String, dynamic>;
+
 enum HttpType { httpTypeGet, httpTypePost }
 
 class Urls {
   static const testPos = '/pos/test';
   static const allPos = '/pos/all';
   static const batchPos = '/pos/batch';
+  static const updatePos = '/pos/update';
+  static const deletePos = '/pos/delete';
   static const uploadPos = '/pos/upload';
   static const testRun = '/run/test';
   static const allRun = '/run/all';
   static const batchRun = '/run/batch';
+  static const updateRun = '/run/update';
+  static const deleteRun = '/run/delete';
   static const uploadRun = '/run/upload';
   static const posBatchList = '/pos/batch_num';
   static const runBatchList = '/run/batch_num';
@@ -62,7 +68,7 @@ class DioClient {
     Response response = await _post(url: url, data: form);
 
     // get token from json response and store in sharedPreferences
-    Map<String, dynamic> result = response.data;
+    Json result = response.data;
     int code = result['code'];
     if (code == 200) {
       String token = result['data'];
@@ -79,7 +85,7 @@ class DioClient {
     const url = Urls.testPos;
     Response response = await _get(url: url);
 
-    Map<String, dynamic> result = response.data;
+    Json result = response.data;
     int code = result['code'];
     if (code == 200) {
       List? positions = result['data'];
@@ -101,7 +107,7 @@ class DioClient {
     const url = Urls.batchPos;
     Response response = await _get(url: url, queryParameters: {'batch': batch});
 
-    Map<String, dynamic> result = response.data;
+    Json result = response.data;
     int code = result['code'];
     if (code == 200) {
       List? positions = result['data'];
@@ -123,7 +129,7 @@ class DioClient {
     const url = Urls.batchRun;
     Response response = await _get(url: url, queryParameters: {'batch': batch});
 
-    Map<String, dynamic> result = response.data;
+    Json result = response.data;
     int code = result['code'];
     if (code == 200) {
       List? runs = result['data'];
@@ -144,7 +150,7 @@ class DioClient {
   Future<HttpResponse<List<int>>> getBatchList() async {
     Response response = await _get(url: Urls.posBatchList);
 
-    Map<String, dynamic> result = response.data;
+    Json result = response.data;
     int code = result['code'];
     if (code == 200) {
       List<int> posBatch = List<int>.from(result['data']);
@@ -152,6 +158,56 @@ class DioClient {
     } else {
       return HttpResponse(false, err: result['msg']);
     }
+  }
+
+  Future<bool> deleteData(int id, {bool isPos = true}) async {
+    Response response = await _get(url: isPos ? Urls.deletePos : Urls.deleteRun, queryParameters: {'id': id});
+    Json result = response.data;
+    int code = result['code'];
+    return code == 200 ? true : false;
+  }
+
+  Future<bool> updatePos(Position position) async {
+    var data = {
+      'id': position.id,
+      'address': position.address,
+      'x': position.x,
+      'y': position.y,
+      'z': position.z,
+      'stay': position.stay,
+      'timestamp': position.timestamp,
+      'bsAddress': position.bsAddress,
+      'sampleTime': position.sampleTime,
+      'sampleBatch': position.sampleBatch
+    };
+    Response response =await _post(url: Urls.updatePos, data: data);
+
+    Json result = response.data;
+    int code = result['code'];
+    return code == 200 ? true : false;
+  }
+
+  Future<bool> updateRun(Running running) async {
+    var data = {
+      'id': running.id,
+      'address': running.address,
+      'accx': running.accx,
+      'accy': running.accy,
+      'accz': running.accz,
+      'gyroscopex': running.gyroscopex,
+      'gyroscopey': running.gyroscopey,
+      'gyroscopez': running.gyroscopez,
+      'stay': running.stay,
+      'timestamp': running.timestamp,
+      'bsAddress': running.bsAddress,
+      'sampleTime': running.sampleTime,
+      'sampleBatch': running.sampleBatch
+    };
+    Response response =await _post(url: Urls.updateRun, data: data);
+
+    Json result = response.data;
+    int code = result['code'];
+    return code == 200 ? true : false;
   }
 
   Future<bool> uploadBytes(Uint8List? bytes, String? fileName) async {
@@ -164,13 +220,9 @@ class DioClient {
     });
     Response response = await _post(url: Urls.uploadPos, data: form);
 
-    Map<String, dynamic> result = response.data;
+    Json result = response.data;
     int code = result['code'];
-    if (code == 200) {
-      return true;
-    } else {
-      return false;
-    }
+    return code == 200 ? true : false;
   }
 
   // Basic request method of Dio
@@ -183,7 +235,7 @@ class DioClient {
   }
 
   Future _sendHttpRequest(HttpType type, String url,
-      {Map<String, dynamic>? queryParameters, dynamic data}) async {
+      {Json? queryParameters, dynamic data}) async {
     try {
       switch (type) {
         case HttpType.httpTypeGet:
