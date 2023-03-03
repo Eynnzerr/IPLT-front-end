@@ -121,105 +121,105 @@ class DownloadDialog extends StatelessWidget {
               children: [
                 DataContainer(
                   child: Obx(() => ListView.separated(
-                      itemBuilder: (_, index) {
-                        final position = globalModel.posList[index];
-                        final Position posBuffer = position.clone();
-                        return ExpansionTile(
-                          title: Text('position $index'),
-                          subtitle: Text('x: ${position.x} y: ${position.y} z: ${position.z}'),
-                          expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            DataInfoTextField(
-                                title: 'address',
-                                defaultText: position.address,
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newAddress) => posBuffer.address = newAddress
-                            ),
-                            DataInfoTextField(
-                                title: 'x',
-                                defaultText: position.x.toString(),
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.x = double.parse(newValue)
-                            ),
-                            DataInfoTextField(
-                                title: 'y',
-                                defaultText: position.y.toString(),
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.y = double.parse(newValue)
-                            ),
-                            DataInfoTextField(
-                                title: 'z',
-                                defaultText: position.z.toString(),
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.z = double.parse(newValue)
-                            ),
-                            DataInfoTextField(
-                                title: 'stay',
-                                defaultText: position.stay.toString(),
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.stay = int.parse(newValue)
-                            ),
-                            DataInfoTextField(
-                                title: 'timestamp',
-                                defaultText: position.timestamp.toString(),
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.timestamp = int.parse(newValue)
-                            ),
-                            DataInfoTextField(
-                                title: 'bsAddress',
-                                defaultText: position.bsAddress.toString(),
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.bsAddress = int.parse(newValue)
-                            ),
-                            DataInfoTextField(
-                                title: 'sample time',
-                                defaultText: position.sampleTime,
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.sampleTime = newValue
-                            ),
-                            DataInfoTextField(
-                                title: 'sample batch',
-                                defaultText: position.sampleBatch.toString(),
-                                isEnabled: globalModel.dataEditing,
-                                onChanged: (newValue) => posBuffer.sampleBatch = int.parse(newValue)
-                            ),
-                            ButtonBar(
-                              children: [
-                                ElevatedButton.icon(
-                                    onPressed: () {
-                                      // 确认对当前所选数据的修改 同步修改远端数据库中数据
-                                      if (globalModel.dataEditing) {
-                                        globalModel.posList[index] = posBuffer;
-                                        globalModel.updatePos(posBuffer);
-                                      }
-                                    },
-                                    icon: const Icon(Icons.edit),
-                                    label: const Text('编辑')
-                                ),
-                                ElevatedButton.icon(
+                    itemBuilder: (_, index) {
+                      final position = globalModel.posList[index];
+                      final Position posBuffer = position.clone();
+                      return ExpansionTile(
+                        title: Text('position $index'),
+                        subtitle: Text('x: ${position.x} y: ${position.y} z: ${position.z}'),
+                        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DataInfoTextField(
+                              title: 'address',
+                              defaultText: position.address,
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newAddress) => posBuffer.address = newAddress
+                          ),
+                          DataInfoTextField(
+                              title: 'x',
+                              defaultText: position.x.toString(),
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.x = double.parse(newValue)
+                          ),
+                          DataInfoTextField(
+                              title: 'y',
+                              defaultText: position.y.toString(),
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.y = double.parse(newValue)
+                          ),
+                          DataInfoTextField(
+                              title: 'z',
+                              defaultText: position.z.toString(),
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.z = double.parse(newValue)
+                          ),
+                          DataInfoTextField(
+                              title: 'stay',
+                              defaultText: position.stay.toString(),
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.stay = int.parse(newValue)
+                          ),
+                          DataInfoTextField(
+                              title: 'timestamp',
+                              defaultText: position.timestamp.toString(),
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.timestamp = int.parse(newValue)
+                          ),
+                          DataInfoTextField(
+                              title: 'bsAddress',
+                              defaultText: position.bsAddress.toString(),
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.bsAddress = int.parse(newValue)
+                          ),
+                          DataInfoTextField(
+                              title: 'sample time',
+                              defaultText: position.sampleTime,
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.sampleTime = newValue
+                          ),
+                          DataInfoTextField(
+                              title: 'sample batch',
+                              defaultText: position.sampleBatch.toString(),
+                              isEnabled: globalModel.dataEditing,
+                              onChanged: (newValue) => posBuffer.sampleBatch = int.parse(newValue)
+                          ),
+                          ButtonBar(
+                            children: [
+                              ElevatedButton.icon(
                                   onPressed: () {
-                                    // 弹出对话框 删除当前所选数据 同时从远端数据库中同步删除该数据
-                                    Get.dialog(DeleteDialog(onConfirm: () {
-                                      globalModel.deleteData(position.id);
-                                      Get.back();
-                                    }));
+                                    // 确认对当前所选数据的修改 同步修改远端数据库中数据
+                                    if (globalModel.dataEditing) {
+                                      globalModel.posList[index] = posBuffer;
+                                      globalModel.updatePos(posBuffer);
+                                    }
                                   },
-                                  icon: const Icon(Icons.delete_forever),
-                                  label: const Text('删除'),
-                                  style: TextButton.styleFrom(
-                                      backgroundColor: Theme.of(context).errorColor
-                                  ),
-                                )
-                              ],
-                            )
-                          ],
-                        );
-                      },
-                      separatorBuilder: (context, index) => Divider(
-                        color: Theme.of(context).primaryColor,
-                        thickness: 1,
-                      ),
-                      itemCount: globalModel.posList.length
+                                  icon: const Icon(Icons.edit),
+                                  label: const Text('编辑')
+                              ),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  // 弹出对话框 删除当前所选数据 同时从远端数据库中同步删除该数据
+                                  Get.dialog(DeleteDialog(onConfirm: () {
+                                    globalModel.deleteData(position.id);
+                                    Get.back();
+                                  }));
+                                },
+                                icon: const Icon(Icons.delete_forever),
+                                label: const Text('删除'),
+                                style: TextButton.styleFrom(
+                                    backgroundColor: Theme.of(context).errorColor
+                                ),
+                              )
+                            ],
+                          )
+                        ],
+                      );
+                    },
+                    separatorBuilder: (context, index) => Divider(
+                      color: Theme.of(context).primaryColor,
+                      thickness: 1,
+                    ),
+                    itemCount: globalModel.posList.length
                   )),
                 ),
                 DataContainer(
@@ -397,29 +397,88 @@ class UploadDialog extends StatelessWidget {
       title: const Text("上传数据"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 12),
+            child: Text("（仅支持上传.csv文件，且必须满足要求格式。格式见软件课程设计数据说明文档。）"),
+          ),
+          const Text("Position 数据上传"),
           Row(
             children: [
               const Text("路径："),
               Obx(() => Text(
-                model.uploadPath,
+                model.posPath,
                 style: const TextStyle(
                     decoration: TextDecoration.underline
                 ),
               )),
             ],
           ),
-          const Text("（仅支持上传.csv文件，且必须满足要求格式。格式见软件课程设计数据说明文档。）"),
           ButtonBar(
-            alignment: MainAxisAlignment.spaceEvenly,
+            alignment: MainAxisAlignment.end,
             mainAxisSize: MainAxisSize.max,
             children: [
-              ElevatedButton(
-                onPressed: () => model.pickFile(),
+              TextButton(
+                onPressed: () => model.pickPosFile(),
                 child: const Text('浏览'),
               ),
-              ElevatedButton(
-                onPressed: () => model.uploadFile(),
+              TextButton(
+                onPressed: () => model.uploadPosFile(),
+                child: const Text('上传'),
+              ),
+            ],
+          ),
+
+          const Text("Running 数据上传"),
+          Row(
+            children: [
+              const Text("路径："),
+              Obx(() => Text(
+                model.runPath,
+                style: const TextStyle(
+                    decoration: TextDecoration.underline
+                ),
+              )),
+            ],
+          ),
+          ButtonBar(
+            alignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              TextButton(
+                onPressed: () => model.pickRunFile(),
+                child: const Text('浏览'),
+              ),
+              TextButton(
+                onPressed: () => model.uploadRunFile(),
+                child: const Text('上传'),
+              ),
+            ],
+          ),
+
+          const Text("Ground Truth 数据上传"),
+          Row(
+            children: [
+              const Text("路径："),
+              Obx(() => Text(
+                model.truthPath,
+                style: const TextStyle(
+                    decoration: TextDecoration.underline
+                ),
+              )),
+            ],
+          ),
+          ButtonBar(
+            alignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              TextButton(
+                onPressed: () => model.pickTruthFile(),
+                child: const Text('浏览'),
+              ),
+              TextButton(
+                onPressed: () => model.uploadTruthFile(),
                 child: const Text('上传'),
               ),
             ],

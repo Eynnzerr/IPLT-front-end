@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:learnflutter/config/log_utils.dart';
 import 'package:learnflutter/data/bean/position.dart';
+import 'package:learnflutter/data/bean/prediction.dart';
 import 'package:learnflutter/data/bean/running.dart';
 import 'package:learnflutter/data/sp_keys.dart';
 import 'package:learnflutter/utils/network/logging_interceptor.dart';
@@ -31,6 +32,8 @@ class Urls {
   static const auth = '/user/register/auth';
   static const info = '/user/register/info';
   static const send = '/user/register/send';
+  static const pdr = '/pdr';
+  static const uploadTruth = '/pdr/upload';
 }
 
 // uniform encapsulation for responses of http requests.
@@ -51,8 +54,8 @@ class DioClient {
 
   static DioClient instance = DioClient._internal();
   static const _tag = 'DioClient';
-  // static const _baseUrl = 'http://eynnzerr.top:8080';
-  static const _baseUrl = 'http://192.168.2.161:8080';
+  static const _baseUrl = 'http://eynnzerr.top:8080';
+  // static const _baseUrl = 'http://127.0.0.1:8080';
 
   final Dio _dio = Dio()
     ..interceptors.addAll([LoggingInterceptor(), TokenInterceptor()])
@@ -203,14 +206,40 @@ class DioClient {
       'sampleTime': running.sampleTime,
       'sampleBatch': running.sampleBatch
     };
-    Response response =await _post(url: Urls.updateRun, data: data);
+    Response response = await _post(url: Urls.updateRun, data: data);
 
     Json result = response.data;
     int code = result['code'];
     return code == 200 ? true : false;
   }
 
-  Future<bool> uploadBytes(Uint8List? bytes, String? fileName) async {
+  Future<HttpResponse<List<Prediction>>> runPDR(int batch, int truthNum) async {
+    var data = {
+      'batch': batch,
+      'truth_num': truthNum,
+    };
+    Response response = await _post(url: Urls.pdr, data: data);
+
+    Json result = response.data;
+    int code = result['code'];
+
+    if (code == 200) {
+      List? predictions = result['data'];
+      if (predictions == null) {
+        return HttpResponse(false, err: 'The response is OK but no data is returned.');
+      }
+
+      final data = <Prediction>[];
+      for (var predictionJson in predictions) {
+        data.add(Prediction.fromJson(predictionJson));
+      }
+      return HttpResponse(true, data: data);
+    } else {
+      return HttpResponse(false, err: result['msg'].toString());
+    }
+  }
+
+  Future<bool> uploadPosBytes(Uint8List? bytes, String? fileName) async {
     if (bytes == null) return false;
     var fileBytes = MultipartFile.fromBytes(bytes, filename: fileName??'');
 
@@ -219,6 +248,21 @@ class DioClient {
       'multipartFile': fileBytes
     });
     Response response = await _post(url: Urls.uploadPos, data: form);
+
+    Json result = response.data;
+    int code = result['code'];
+    return code == 200 ? true : false;
+  }
+
+  Future<bool> uploadRunBytes(Uint8List? bytes, String? fileName) async {
+    if (bytes == null) return false;
+    var fileBytes = MultipartFile.fromBytes(bytes, filename: fileName??'');
+
+    FormData form = FormData.fromMap({
+      'name': fileName??'',
+      'multipartFile': fileBytes
+    });
+    Response response = await _post(url: Urls.uploadRun, data: form);
 
     Json result = response.data;
     int code = result['code'];
